@@ -1,0 +1,9 @@
+{
+  "category.aimassist": "Aim Assist",
+  "key.aimassist.toggle": "Toggle Aim Assist",
+  "key.aimassist.config": "Open Config",
+
+  "screen.aimassist.config": "Aim Assist Config",
+  "screen.aimassist.mace_mode": "Mace Mode",
+  "screen.aimassist.smoothness": "Aim Smoothness: %.0f%%"
+}
