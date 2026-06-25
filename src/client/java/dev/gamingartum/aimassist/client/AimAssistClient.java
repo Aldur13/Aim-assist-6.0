@@ -9,6 +9,7 @@ import net.fabricmc.fabric.api.client.event.lifecycle.v1.ClientTickEvents;
 import net.fabricmc.fabric.api.client.keymapping.v1.KeyMappingHelper;
 import net.minecraft.client.KeyMapping;
 import net.minecraft.network.chat.Component;
+import net.minecraft.resources.Identifier;
 import org.lwjgl.glfw.GLFW;
 
 public class AimAssistClient implements ClientModInitializer {
@@ -16,20 +17,23 @@ public class AimAssistClient implements ClientModInitializer {
     public static KeyMapping toggleKey;
     public static KeyMapping configKey;
 
+    private static final KeyMapping.Category CATEGORY =
+            KeyMapping.Category.register(Identifier.fromNamespaceAndPath("aimassist", "category"));
+
     @Override
     public void onInitializeClient() {
         toggleKey = KeyMappingHelper.registerKeyMapping(new KeyMapping(
                 "key.aimassist.toggle",
                 InputConstants.Type.KEYSYM,
                 GLFW.GLFW_KEY_J,
-                KeyMapping.Category.MISC
+                CATEGORY
         ));
 
         configKey = KeyMappingHelper.registerKeyMapping(new KeyMapping(
                 "key.aimassist.config",
                 InputConstants.Type.KEYSYM,
                 GLFW.GLFW_KEY_SEMICOLON,
-                KeyMapping.Category.MISC
+                CATEGORY
         ));
 
         ClientTickEvents.END_CLIENT_TICK.register(minecraft -> {
