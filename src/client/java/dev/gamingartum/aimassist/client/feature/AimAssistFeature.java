@@ -1,66 +1,57 @@
 package dev.gamingartum.aimassist.client.feature;
 
 import dev.gamingartum.aimassist.client.AimAssistState;
-import net.minecraft.client.MinecraftClient;
-import net.minecraft.client.network.AbstractClientPlayerEntity;
-import net.minecraft.entity.player.PlayerEntity;
-import net.minecraft.util.math.MathHelper;
-import net.minecraft.util.math.Vec3d;
+import net.minecraft.client.Minecraft;
+import net.minecraft.client.player.AbstractClientPlayer;
+import net.minecraft.util.Mth;
+import net.minecraft.world.entity.player.Player;
+import net.minecraft.world.phys.Vec3;
 
 import java.util.Comparator;
 
 public class AimAssistFeature {
 
-    /**
-     * Called every client tick. Finds the nearest player and locks the local
-     * player's camera onto them when aim assist is enabled.
-     */
-    public static void tick(MinecraftClient client) {
+    public static void tick(Minecraft minecraft) {
         AimAssistState state = AimAssistState.getInstance();
 
-        if (!state.isEnabled() || client.player == null || client.world == null) {
+        if (!state.isEnabled() || minecraft.player == null || minecraft.level == null) {
             state.setCurrentTarget(null);
             return;
         }
 
-        PlayerEntity target = findNearest(client);
+        Player target = findNearest(minecraft);
         state.setCurrentTarget(target);
 
         if (target != null) {
-            aimAt(client, target, state.getConfig().aimSmoothness);
+            aimAt(minecraft, target, state.getConfig().aimSmoothness);
         }
     }
 
-    private static PlayerEntity findNearest(MinecraftClient client) {
-        return client.world.getPlayers().stream()
-                .filter(p -> p != client.player)
-                .min(Comparator.comparingDouble(p -> p.squaredDistanceTo(client.player)))
+    private static Player findNearest(Minecraft minecraft) {
+        return minecraft.level.players().stream()
+                .filter(p -> p != minecraft.player)
+                .min(Comparator.comparingDouble(p -> p.distanceToSqr(minecraft.player)))
                 .orElse(null);
     }
 
-    /**
-     * Rotates the player's view towards {@code target}.
-     * {@code smoothness} controls how fast: 1.0 = instant snap, lower = gradual pull.
-     */
-    public static void aimAt(MinecraftClient client, PlayerEntity target, float smoothness) {
-        if (client.player == null) return;
+    public static void aimAt(Minecraft minecraft, Player target, float smoothness) {
+        if (minecraft.player == null) return;
 
-        Vec3d from = client.player.getEyePos();
-        Vec3d to   = target.getEyePos();
+        Vec3 from = minecraft.player.getEyePosition();
+        Vec3 to   = target.getEyePosition();
 
         float[] angles = calcAngles(from, to);
         float targetYaw   = angles[0];
         float targetPitch = angles[1];
 
-        float newYaw   = lerpAngle(client.player.getYaw(), targetYaw, smoothness);
-        float newPitch = MathHelper.lerp(smoothness, client.player.getPitch(), targetPitch);
+        float newYaw   = lerpAngle(minecraft.player.getYRot(), targetYaw, smoothness);
+        float newPitch = Mth.lerp(smoothness, minecraft.player.getXRot(), targetPitch);
 
-        client.player.setYaw(newYaw);
-        client.player.setPitch(MathHelper.clamp(newPitch, -90f, 90f));
+        minecraft.player.setYRot(newYaw);
+        minecraft.player.setXRot(Mth.clamp(newPitch, -90f, 90f));
     }
 
-    /** Returns {yaw, pitch} in degrees pointing from {@code from} toward {@code to}. */
-    private static float[] calcAngles(Vec3d from, Vec3d to) {
+    private static float[] calcAngles(Vec3 from, Vec3 to) {
         double dx = to.x - from.x;
         double dy = to.y - from.y;
         double dz = to.z - from.z;
@@ -70,9 +61,8 @@ public class AimAssistFeature {
         return new float[]{yaw, pitch};
     }
 
-    /** Shortest-path angle lerp that handles the 360→0 wrap correctly. */
     private static float lerpAngle(float current, float target, float factor) {
-        float diff = MathHelper.wrapDegrees(target - current);
+        float diff = Mth.wrapDegrees(target - current);
         return current + diff * factor;
     }
 }

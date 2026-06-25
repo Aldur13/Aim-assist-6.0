@@ -1,59 +1,56 @@
 package dev.gamingartum.aimassist.client;
 
+import com.mojang.blaze3d.platform.InputConstants;
 import dev.gamingartum.aimassist.client.feature.AimAssistFeature;
 import dev.gamingartum.aimassist.client.feature.MaceHitFeature;
 import dev.gamingartum.aimassist.client.screen.ConfigScreen;
 import net.fabricmc.api.ClientModInitializer;
 import net.fabricmc.fabric.api.client.event.lifecycle.v1.ClientTickEvents;
-import net.fabricmc.fabric.api.client.keybinding.v1.KeyBindingHelper;
-import net.minecraft.client.option.KeyBinding;
-import net.minecraft.client.util.InputUtil;
-import net.minecraft.text.Text;
+import net.fabricmc.fabric.api.client.keymapping.v1.KeyMappingHelper;
+import net.minecraft.client.KeyMapping;
+import net.minecraft.network.chat.Component;
 import org.lwjgl.glfw.GLFW;
 
 public class AimAssistClient implements ClientModInitializer {
 
-    public static KeyBinding toggleKey;
-    public static KeyBinding configKey;
+    public static KeyMapping toggleKey;
+    public static KeyMapping configKey;
 
     @Override
     public void onInitializeClient() {
-        toggleKey = KeyBindingHelper.registerKeyBinding(new KeyBinding(
+        toggleKey = KeyMappingHelper.registerKeyMapping(new KeyMapping(
                 "key.aimassist.toggle",
-                InputUtil.Type.KEYSYM,
+                InputConstants.Type.KEYSYM,
                 GLFW.GLFW_KEY_J,
-                "category.aimassist"
+                KeyMapping.Category.MISC
         ));
 
-        configKey = KeyBindingHelper.registerKeyBinding(new KeyBinding(
+        configKey = KeyMappingHelper.registerKeyMapping(new KeyMapping(
                 "key.aimassist.config",
-                InputUtil.Type.KEYSYM,
+                InputConstants.Type.KEYSYM,
                 GLFW.GLFW_KEY_SEMICOLON,
-                "category.aimassist"
+                KeyMapping.Category.MISC
         ));
 
-        ClientTickEvents.END_CLIENT_TICK.register(client -> {
-            // Toggle aim assist with J
-            while (toggleKey.wasPressed()) {
+        ClientTickEvents.END_CLIENT_TICK.register(minecraft -> {
+            while (toggleKey.consumeClick()) {
                 AimAssistState.getInstance().toggle();
-                if (client.player != null) {
+                if (minecraft.player != null) {
                     boolean on = AimAssistState.getInstance().isEnabled();
-                    client.player.sendMessage(
-                            Text.literal("Aim Assist: " + (on ? "§aON" : "§cOFF")),
-                            true
+                    minecraft.player.sendOverlayMessage(
+                            Component.literal("Aim Assist: " + (on ? "§aON" : "§cOFF"))
                     );
                 }
             }
 
-            // Open config screen with ;
-            while (configKey.wasPressed()) {
-                if (client.currentScreen == null) {
-                    client.setScreen(new ConfigScreen(null));
+            while (configKey.consumeClick()) {
+                if (minecraft.gui.screen() == null) {
+                    minecraft.gui.setScreen(new ConfigScreen(null));
                 }
             }
 
-            AimAssistFeature.tick(client);
-            MaceHitFeature.tick(client);
+            AimAssistFeature.tick(minecraft);
+            MaceHitFeature.tick(minecraft);
         });
     }
 }
