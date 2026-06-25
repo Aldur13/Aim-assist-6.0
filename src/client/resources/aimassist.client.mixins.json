@@ -3,7 +3,8 @@
   "package": "dev.gamingartum.aimassist.client.mixin",
   "compatibilityLevel": "JAVA_25",
   "client": [
-    "EntityMixin"
+    "EntityMixin",
+    "LocalPlayerMixin"
   ],
   "injectors": {
     "defaultRequire": 1

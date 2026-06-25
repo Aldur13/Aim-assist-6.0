@@ -51,7 +51,7 @@ public class AimAssistFeature {
         minecraft.player.setXRot(Mth.clamp(newPitch, -90f, 90f));
     }
 
-    private static float[] calcAngles(Vec3 from, Vec3 to) {
+    public static float[] calcAngles(Vec3 from, Vec3 to) {
         double dx = to.x - from.x;
         double dy = to.y - from.y;
         double dz = to.z - from.z;
