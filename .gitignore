@@ -1,0 +1,25 @@
+# Gradle
+.gradle/
+build/
+out/
+
+# IDE
+.idea/
+*.iml
+.vscode/
+*.class
+
+# Fabric dev environment
+run/
+
+# OS
+.DS_Store
+Thumbs.db
+
+# Other local projects (kept locally, not part of this repo)
+atelier/
+banking-system/
+bloodmagic/
+bloodmagic-wiki/
+deathnote/
+.claude/

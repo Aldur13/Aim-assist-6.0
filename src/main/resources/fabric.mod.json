@@ -1,0 +1,35 @@
+{
+  "schemaVersion": 1,
+  "id": "aimassist",
+  "version": "${version}",
+  "name": "Aim Assist",
+  "description": "Aim assist for Minecraft 26.x — lock onto the nearest player with J, and auto-time mace smash attacks.",
+  "authors": [
+    "gamingartum"
+  ],
+  "contact": {
+    "sources": "https://github.com/Aldur13/Aim-assist-6.0"
+  },
+  "license": "MIT",
+  "environment": "client",
+  "entrypoints": {
+    "main": [
+      "dev.gamingartum.aimassist.AimAssist"
+    ],
+    "client": [
+      "dev.gamingartum.aimassist.client.AimAssistClient"
+    ]
+  },
+  "mixins": [
+    "aimassist.mixins.json",
+    {
+      "config": "aimassist.client.mixins.json",
+      "environment": "client"
+    }
+  ],
+  "depends": {
+    "fabricloader": ">=0.16.0",
+    "fabric-api": "*",
+    "minecraft": "~26"
+  }
+}
