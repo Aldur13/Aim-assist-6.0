@@ -1,0 +1,32 @@
+{
+  "creativeTab.atelier.atelier": "Atelier",
+
+  "item.atelier.magic_paper": "Magic Paper",
+  "item.atelier.conjurers_ink": "Conjurer's Ink",
+  "item.atelier.witchs_handbook": "Witch's Handbook",
+  "item.atelier.inscribed_scroll": "Inscribed Scroll",
+
+  "screen.atelier.drawing": "Spell Canvas",
+  "screen.atelier.handbook": "Witch's Handbook",
+  "screen.atelier.confirm": "Confirm",
+  "screen.atelier.clear": "Clear",
+  "screen.atelier.undo": "Undo",
+  "screen.atelier.hint": "Trace the glyph, then Confirm",
+
+  "tooltip.atelier.spell": "Spell: %s",
+  "tooltip.atelier.power": "Power: %s",
+
+  "spell.atelier.firebolt": "Firebolt",
+  "spell.atelier.gust": "Gust",
+  "spell.atelier.healing_spring": "Healing Spring",
+  "spell.atelier.stone_barrier": "Stone Barrier",
+  "spell.atelier.flash": "Flash",
+
+  "spell.atelier.firebolt.desc": "Launches a small fireball in the direction you are looking. Stronger casts move faster and hit harder.",
+  "spell.atelier.gust.desc": "A burst of wind knocks back all nearby entities. Greater power increases both range and knockback force.",
+  "spell.atelier.healing_spring.desc": "Channels water's life force to restore your health immediately. At higher power, also grants Regeneration for several seconds.",
+  "spell.atelier.stone_barrier.desc": "Raises stone blocks in front of you to form a wall. Greater power makes the wall taller and wider.",
+  "spell.atelier.flash.desc": "A blinding flash afflicts nearby monsters with Blindness. At greater power, they also glow, revealing their positions through walls.",
+
+  "screen.atelier.handbook.hint": "Use ◀ ▶ to browse spells"
+}

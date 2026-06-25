@@ -1,0 +1,27 @@
+{
+  "schemaVersion": 1,
+  "id": "atelier",
+  "version": "0.1.0",
+  "name": "Atelier",
+  "description": "Draw spell glyphs to inscribe scrolls. Inspired by Witch Hat Atelier.",
+  "authors": ["gamingartum"],
+  "license": "MIT",
+  "environment": "*",
+  "entrypoints": {
+    "main": ["dev.gamingartum.atelier.Atelier"],
+    "client": ["dev.gamingartum.atelier.client.AtelierClient"]
+  },
+  "mixins": [
+    "atelier.mixins.json",
+    {
+      "config": "atelier.client.mixins.json",
+      "environment": "client"
+    }
+  ],
+  "depends": {
+    "fabricloader": ">=0.19.3",
+    "minecraft": "~26.2",
+    "java": ">=25",
+    "fabric-api": "*"
+  }
+}
