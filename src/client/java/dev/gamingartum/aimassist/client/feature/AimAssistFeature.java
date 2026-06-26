@@ -44,6 +44,9 @@ public class AimAssistFeature {
         float targetYaw   = angles[0];
         float targetPitch = angles[1];
 
+        // Save pitch before update so LocalPlayerMixin can interpolate per-frame
+        AimAssistState.getInstance().setPrevPitch(minecraft.player.getXRot());
+
         float newYaw   = lerpAngle(minecraft.player.getYRot(), targetYaw, smoothness);
         float newPitch = Mth.lerp(smoothness, minecraft.player.getXRot(), targetPitch);
 

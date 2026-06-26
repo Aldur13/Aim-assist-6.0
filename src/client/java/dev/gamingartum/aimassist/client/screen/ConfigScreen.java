@@ -2,7 +2,7 @@ package dev.gamingartum.aimassist.client.screen;
 
 import dev.gamingartum.aimassist.client.AimAssistState;
 import dev.gamingartum.aimassist.client.config.AimAssistConfig;
-import net.minecraft.client.gui.GuiGraphicsExtractor;
+import net.minecraft.client.gui.GuiGraphics;
 import net.minecraft.client.gui.components.AbstractSliderButton;
 import net.minecraft.client.gui.components.Button;
 import net.minecraft.client.gui.screens.Screen;
@@ -57,15 +57,15 @@ public class ConfigScreen extends Screen {
     }
 
     @Override
-    public void extractRenderState(GuiGraphicsExtractor g, int mouseX, int mouseY, float partialTick) {
-        super.extractRenderState(g, mouseX, mouseY, partialTick);
-        g.centeredText(this.font, this.title, this.width / 2, this.height / 4 - 24, 0xFFFFFF);
+    public void render(GuiGraphics guiGraphics, int mouseX, int mouseY, float partialTick) {
+        super.render(guiGraphics, mouseX, mouseY, partialTick);
+        guiGraphics.drawCenteredString(this.font, this.title, this.width / 2, this.height / 4 - 24, 0xFFFFFF);
     }
 
     @Override
     public void onClose() {
         config.save();
-        this.minecraft.gui.setScreen(parent);
+        this.minecraft.setScreen(parent);
     }
 
     private Component maceModeLabel() {

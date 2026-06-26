@@ -17,10 +17,10 @@ public class AimAssistConfig {
     public boolean maceMode = true;
 
     /**
-     * How fast the aim snaps to the target.
-     * 1.0 = instant lock. 0.1 = very smooth pull. Default: 1.0.
+     * How fast the aim pulls toward the target per tick.
+     * 1.0 = instant snap. 0.05 = very slow pull. Default: 0.15 (smooth).
      */
-    public float aimSmoothness = 1.0f;
+    public float aimSmoothness = 0.15f;
 
     public static AimAssistConfig load() {
         if (Files.exists(CONFIG_PATH)) {
