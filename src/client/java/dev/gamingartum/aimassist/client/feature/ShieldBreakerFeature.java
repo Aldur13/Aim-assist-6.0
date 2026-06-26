@@ -9,14 +9,18 @@ import net.minecraft.world.phys.Vec3;
 
 public class ShieldBreakerFeature {
 
-    private static final int    ATTACK_COOLDOWN = 10;
-    private static final double ATTACK_RANGE    = 3.5;
+    private static final int    AXE_COOLDOWN      = 10;  // ticks between axe swings while shield is up
+    private static final int    FOLLOW_UP_WINDOW   = 80;  // ticks of fast follow-ups after shield drops (~4s)
+    private static final double ATTACK_RANGE       = 3.5;
+    private static final float  MIN_CHARGE         = 0.90f; // only swing when weapon is ≥90% charged
 
-    private static int   attackCooldown  = 0;
-    private static float pendingStrafe   = 0f;
+    private static int   axeCooldown    = 0;
+    private static int   followUpWindow = 0;
+    private static int   savedSlot      = -1;  // hotbar slot we held before switching to axe
+    private static float pendingStrafe  = 0f;
 
     public static void tick(Minecraft minecraft) {
-        if (attackCooldown > 0) attackCooldown--;
+        if (axeCooldown > 0) axeCooldown--;
 
         AimAssistState state = AimAssistState.getInstance();
         if (!state.isEnabled() || !state.getConfig().shieldBreaker) {
@@ -31,21 +35,44 @@ public class ShieldBreakerFeature {
         Player player = minecraft.player;
         Player target = state.getCurrentTarget();
         if (target == null) {
-            pendingStrafe = 0f;
+            restoreSlot(player);
             return;
         }
 
         if (target.isBlocking()) {
-            if (attackCooldown <= 0) {
+            followUpWindow = 0; // abort any follow-up while shield is back up
+
+            // Remember original slot so we can restore it the moment the shield drops
+            if (savedSlot < 0) {
+                savedSlot = player.getInventory().getSelectedSlot();
+            }
+
+            if (axeCooldown <= 0) {
                 tryAxeAttack(minecraft, player, target);
             }
+
             if (state.getConfig().sneakBehind) {
                 pendingStrafe = calcStrafeDir(player, target);
             }
         } else {
             pendingStrafe = 0f;
+
+            // The instant the shield goes down, restore the original weapon and open follow-up window
+            if (savedSlot >= 0) {
+                player.getInventory().setSelectedSlot(savedSlot);
+                savedSlot = -1;
+                followUpWindow = FOLLOW_UP_WINDOW;
+            }
+
+            // Hammer the target with follow-up attacks while the window is open
+            if (followUpWindow > 0) {
+                followUpWindow--;
+                followUpAttack(minecraft, player, target);
+            }
         }
     }
+
+    // ─── axe hit to break shield ─────────────────────────────────────────────
 
     private static void tryAxeAttack(Minecraft minecraft, Player player, Player target) {
         int axeSlot = findBestAxeSlot(player);
@@ -56,9 +83,22 @@ public class ShieldBreakerFeature {
         if (player.distanceTo(target) <= ATTACK_RANGE) {
             minecraft.gameMode.attack(player, target);
             player.swing(InteractionHand.MAIN_HAND);
-            attackCooldown = ATTACK_COOLDOWN;
+            axeCooldown = AXE_COOLDOWN;
         }
     }
+
+    // ─── rapid follow-up after shield is disabled ─────────────────────────────
+
+    private static void followUpAttack(Minecraft minecraft, Player player, Player target) {
+        if (player.distanceTo(target) > ATTACK_RANGE) return;
+        // Only swing when the weapon charge is high enough to deal real damage
+        if (player.getAttackStrengthScale(0.5f) >= MIN_CHARGE) {
+            minecraft.gameMode.attack(player, target);
+            player.swing(InteractionHand.MAIN_HAND);
+        }
+    }
+
+    // ─── helpers ──────────────────────────────────────────────────────────────
 
     private static int findBestAxeSlot(Player player) {
         int current = player.getInventory().getSelectedSlot();
@@ -73,22 +113,27 @@ public class ShieldBreakerFeature {
         return -1;
     }
 
+    private static void restoreSlot(Player player) {
+        if (savedSlot >= 0 && player != null) {
+            player.getInventory().setSelectedSlot(savedSlot);
+        }
+        savedSlot = -1;
+        pendingStrafe = 0f;
+        followUpWindow = 0;
+    }
+
     /**
-     * Calculates the left/right strafe impulse to circle behind the target.
-     * Positive = strafe left, negative = strafe right (matches KeyboardInput convention).
+     * Returns left/right strafe impulse to circle behind the blocking target.
+     * Positive = strafe left, negative = strafe right (KeyboardInput convention).
      */
     private static float calcStrafeDir(Player player, Player target) {
-        // Point behind target (opposite to their facing)
         Vec3 targetBack = target.position().subtract(target.getLookAngle().scale(2.0));
-        Vec3 toBack = targetBack.subtract(player.position()).normalize();
+        Vec3 toBack     = targetBack.subtract(player.position()).normalize();
 
-        // Player's right direction in world space
         double yawRad = Math.toRadians(player.getYRot());
         Vec3 right = new Vec3(Math.cos(yawRad), 0, Math.sin(yawRad));
 
         double dot = toBack.dot(right);
-        // dot > 0 → target-back is to our right → strafe right (leftImpulse = -1)
-        // dot < 0 → target-back is to our left  → strafe left  (leftImpulse = +1)
         return dot > 0 ? -1f : 1f;
     }
 
