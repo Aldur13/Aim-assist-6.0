@@ -3,7 +3,7 @@
   "id": "aimassist",
   "version": "${version}",
   "name": "Aim Assist",
-  "description": "Aim assist for Minecraft 1.21.11 — lock onto the nearest player with J, and auto-time mace smash attacks.",
+  "description": "Aim assist for Minecraft 1.21.11+ — lock onto the nearest player with J, and auto-time mace smash attacks.",
   "authors": [
     "gamingartum"
   ],
@@ -29,7 +29,7 @@
   ],
   "depends": {
     "fabricloader": ">=0.18.1",
-    "minecraft": "~1.21.11",
+    "minecraft": ">=1.21.11",
     "java": ">=21",
     "fabric-api": "*"
   }
