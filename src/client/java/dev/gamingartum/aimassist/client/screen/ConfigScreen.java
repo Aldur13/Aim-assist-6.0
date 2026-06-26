@@ -50,10 +50,31 @@ public class ConfigScreen extends Screen {
             }
         });
 
+        // Shield Breaker toggle
+        addRenderableWidget(Button.builder(shieldBreakerLabel(), btn -> {
+            config.shieldBreaker = !config.shieldBreaker;
+            btn.setMessage(shieldBreakerLabel());
+            config.save();
+        }).bounds(cx - 100, y + 56, 200, 20).build());
+
+        // Sneak Behind toggle
+        addRenderableWidget(Button.builder(sneakBehindLabel(), btn -> {
+            config.sneakBehind = !config.sneakBehind;
+            btn.setMessage(sneakBehindLabel());
+            config.save();
+        }).bounds(cx - 100, y + 84, 200, 20).build());
+
+        // Elytra Predict toggle
+        addRenderableWidget(Button.builder(elytraPredictLabel(), btn -> {
+            config.elytraPredict = !config.elytraPredict;
+            btn.setMessage(elytraPredictLabel());
+            config.save();
+        }).bounds(cx - 100, y + 112, 200, 20).build());
+
         // Done
         addRenderableWidget(Button.builder(
                 Component.translatable("gui.done"), btn -> onClose()
-        ).bounds(cx - 100, y + 80, 200, 20).build());
+        ).bounds(cx - 100, y + 140, 200, 20).build());
     }
 
     @Override
@@ -70,5 +91,17 @@ public class ConfigScreen extends Screen {
 
     private Component maceModeLabel() {
         return Component.literal("Mace Mode: " + (config.maceMode ? "§aON" : "§cOFF"));
+    }
+
+    private Component shieldBreakerLabel() {
+        return Component.literal("Shield Breaker: " + (config.shieldBreaker ? "§aON" : "§cOFF"));
+    }
+
+    private Component sneakBehindLabel() {
+        return Component.literal("Sneak Behind: " + (config.sneakBehind ? "§aON" : "§cOFF"));
+    }
+
+    private Component elytraPredictLabel() {
+        return Component.literal("Elytra Predict: " + (config.elytraPredict ? "§aON" : "§cOFF"));
     }
 }

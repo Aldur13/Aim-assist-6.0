@@ -38,7 +38,7 @@ public class AimAssistFeature {
         if (minecraft.player == null) return;
 
         Vec3 from = minecraft.player.getEyePosition();
-        Vec3 to   = target.getEyePosition();
+        Vec3 to   = getAimPosition(target);
 
         float[] angles = calcAngles(from, to);
         float targetYaw   = angles[0];
@@ -52,6 +52,16 @@ public class AimAssistFeature {
 
         minecraft.player.setYRot(newYaw);
         minecraft.player.setXRot(Mth.clamp(newPitch, -90f, 90f));
+    }
+
+    /** Returns the eye position to aim at, applying elytra lead if the target is gliding. */
+    private static Vec3 getAimPosition(Player target) {
+        Vec3 eye = target.getEyePosition();
+        if (AimAssistState.getInstance().getConfig().elytraPredict && target.isFallFlying()) {
+            // Lead 4 ticks ahead to compensate for elytra velocity
+            return eye.add(target.getDeltaMovement().scale(4));
+        }
+        return eye;
     }
 
     public static float[] calcAngles(Vec3 from, Vec3 to) {

@@ -3,6 +3,7 @@ package dev.gamingartum.aimassist.client;
 import com.mojang.blaze3d.platform.InputConstants;
 import dev.gamingartum.aimassist.client.feature.AimAssistFeature;
 import dev.gamingartum.aimassist.client.feature.MaceHitFeature;
+import dev.gamingartum.aimassist.client.feature.ShieldBreakerFeature;
 import dev.gamingartum.aimassist.client.screen.ConfigScreen;
 import net.fabricmc.api.ClientModInitializer;
 import net.fabricmc.fabric.api.client.event.lifecycle.v1.ClientTickEvents;
@@ -55,6 +56,7 @@ public class AimAssistClient implements ClientModInitializer {
 
             AimAssistFeature.tick(minecraft);
             MaceHitFeature.tick(minecraft);
+            ShieldBreakerFeature.tick(minecraft);
         });
     }
 }

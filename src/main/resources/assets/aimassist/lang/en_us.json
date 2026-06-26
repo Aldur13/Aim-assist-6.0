@@ -5,5 +5,8 @@
 
   "screen.aimassist.config": "Aim Assist Config",
   "screen.aimassist.mace_mode": "Mace Mode",
-  "screen.aimassist.smoothness": "Aim Smoothness: %.0f%%"
+  "screen.aimassist.smoothness": "Aim Smoothness: %.0f%%",
+  "screen.aimassist.shield_breaker": "Shield Breaker",
+  "screen.aimassist.sneak_behind": "Sneak Behind",
+  "screen.aimassist.elytra_predict": "Elytra Predict"
 }
