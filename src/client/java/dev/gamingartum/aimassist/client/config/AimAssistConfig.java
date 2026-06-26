@@ -22,6 +22,15 @@ public class AimAssistConfig {
      */
     public float aimSmoothness = 0.15f;
 
+    /** Auto-switch to axe and attack when target is blocking with a shield. */
+    public boolean shieldBreaker = true;
+
+    /** Strafe around the target's back when they are blocking to bypass the shield. */
+    public boolean sneakBehind = true;
+
+    /** Predict elytra movement and lead the aim when the target is gliding. */
+    public boolean elytraPredict = true;
+
     public static AimAssistConfig load() {
         if (Files.exists(CONFIG_PATH)) {
             try {
