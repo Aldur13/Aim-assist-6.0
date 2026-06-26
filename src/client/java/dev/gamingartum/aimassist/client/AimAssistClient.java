@@ -6,7 +6,7 @@ import dev.gamingartum.aimassist.client.feature.MaceHitFeature;
 import dev.gamingartum.aimassist.client.screen.ConfigScreen;
 import net.fabricmc.api.ClientModInitializer;
 import net.fabricmc.fabric.api.client.event.lifecycle.v1.ClientTickEvents;
-import net.fabricmc.fabric.api.client.keymapping.v1.KeyMappingHelper;
+import net.fabricmc.fabric.api.client.keybinding.v1.KeyBindingHelper;
 import net.minecraft.client.KeyMapping;
 import net.minecraft.network.chat.Component;
 import net.minecraft.resources.Identifier;
@@ -22,14 +22,14 @@ public class AimAssistClient implements ClientModInitializer {
 
     @Override
     public void onInitializeClient() {
-        toggleKey = KeyMappingHelper.registerKeyMapping(new KeyMapping(
+        toggleKey = KeyBindingHelper.registerKeyBinding(new KeyMapping(
                 "key.aimassist.toggle",
                 InputConstants.Type.KEYSYM,
                 GLFW.GLFW_KEY_J,
                 CATEGORY
         ));
 
-        configKey = KeyMappingHelper.registerKeyMapping(new KeyMapping(
+        configKey = KeyBindingHelper.registerKeyBinding(new KeyMapping(
                 "key.aimassist.config",
                 InputConstants.Type.KEYSYM,
                 GLFW.GLFW_KEY_SEMICOLON,
@@ -41,15 +41,15 @@ public class AimAssistClient implements ClientModInitializer {
                 AimAssistState.getInstance().toggle();
                 if (minecraft.player != null) {
                     boolean on = AimAssistState.getInstance().isEnabled();
-                    minecraft.player.sendOverlayMessage(
-                            Component.literal("Aim Assist: " + (on ? "§aON" : "§cOFF"))
+                    minecraft.player.displayClientMessage(
+                            Component.literal("Aim Assist: " + (on ? "§aON" : "§cOFF")), true
                     );
                 }
             }
 
             while (configKey.consumeClick()) {
-                if (minecraft.gui.screen() == null) {
-                    minecraft.gui.setScreen(new ConfigScreen(null));
+                if (minecraft.screen == null) {
+                    minecraft.setScreen(new ConfigScreen(null));
                 }
             }
 

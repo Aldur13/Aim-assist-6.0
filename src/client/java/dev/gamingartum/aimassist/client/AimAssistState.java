@@ -9,6 +9,7 @@ public class AimAssistState {
     private boolean enabled = false;
     private Player currentTarget = null;
     private final AimAssistConfig config;
+    private float prevPitch = 0f;
 
     private AimAssistState() {
         this.config = AimAssistConfig.load();
@@ -37,5 +38,13 @@ public class AimAssistState {
 
     public AimAssistConfig getConfig() {
         return config;
+    }
+
+    public float getPrevPitch() {
+        return prevPitch;
+    }
+
+    public void setPrevPitch(float pitch) {
+        this.prevPitch = pitch;
     }
 }
