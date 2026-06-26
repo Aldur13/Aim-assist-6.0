@@ -58,8 +58,13 @@ public class AimAssistFeature {
     private static Vec3 getAimPosition(Player target) {
         Vec3 eye = target.getEyePosition();
         if (AimAssistState.getInstance().getConfig().elytraPredict && target.isFallFlying()) {
-            // Lead 4 ticks ahead to compensate for elytra velocity
-            return eye.add(target.getDeltaMovement().scale(4));
+            Vec3 velocity = target.getDeltaMovement();
+            double speed  = velocity.length(); // blocks per tick
+            if (speed > 0.05) {
+                // Lead time scales with speed: slow glide ~2 ticks, rocket ~8 ticks, capped at 10
+                double predictionTicks = Math.min(speed * 3.5, 10.0);
+                return eye.add(velocity.scale(predictionTicks));
+            }
         }
         return eye;
     }
