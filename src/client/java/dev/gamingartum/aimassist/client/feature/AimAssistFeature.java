@@ -105,12 +105,27 @@ public class AimAssistFeature {
         }
 
         // ── sneak-behind upward lift ──────────────────────────────────────────
-        if (ShieldBreakerFeature.isSneakBehindActive()) {
-            double dist = minecraft.player == null ? 2.0 : minecraft.player.distanceTo(target);
-            double closenessBoost = Math.max(0, 1.0 - dist / 5.0);
-            double horizontalFactor = 1.0 - (Math.abs(target.getYRot() - minecraft.player.getYRot()) / 180.0);
-            double lift = (closenessBoost * 0.3 + horizontalFactor * 0.15) - dist * 0.05;
-            return eye.add(0, Mth.clamp(lift, 0.05, 0.35), 0);
+        if (ShieldBreakerFeature.isSneakBehindActive() && minecraft.player != null) {
+            Vec3 playerPos = minecraft.player.position();
+            Vec3 targetPos = target.position();
+
+            Vec3 relativePos = playerPos.subtract(targetPos);
+            double dist = relativePos.length();
+
+            if (dist < 0.1) {
+                return eye;
+            }
+
+            double horizontalDist = Math.sqrt(
+                relativePos.x * relativePos.x + relativePos.z * relativePos.z
+            );
+
+            double closenessBoost = 1.0 / (1.0 + dist * 0.4);
+            double horizontalFactor = 1.0 + (horizontalDist * 0.15);
+            double lift = 0.45 * closenessBoost * horizontalFactor - dist * 0.05;
+
+            lift = Mth.clamp(lift, 0.06, 0.50);
+            return eye.add(0, lift, 0);
         }
 
         return eye;
