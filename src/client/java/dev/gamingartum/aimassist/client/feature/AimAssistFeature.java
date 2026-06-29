@@ -1,6 +1,7 @@
 package dev.gamingartum.aimassist.client.feature;
 
 import dev.gamingartum.aimassist.client.AimAssistState;
+import dev.gamingartum.aimassist.client.util.HumanizationUtils;
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.player.AbstractClientPlayer;
 import net.minecraft.util.Mth;
@@ -16,18 +17,29 @@ public class AimAssistFeature {
     // through the strafe circle without lagging onto the ground.
     private static final float SNEAK_BEHIND_MIN_SMOOTHNESS = 0.6f;
 
+    private static int reactionDelay = 0;
+    private static int reactionCounter = 0;
+    private static Player lastTarget = null;
+
     public static void tick(Minecraft minecraft) {
         AimAssistState state = AimAssistState.getInstance();
 
         if (!state.isEnabled() || minecraft.player == null || minecraft.level == null) {
             state.setCurrentTarget(null);
+            lastTarget = null;
             return;
         }
 
         Player target = findNearest(minecraft);
+        if (target != lastTarget) {
+            lastTarget = target;
+            reactionDelay = HumanizationUtils.getReactionDelay();
+            reactionCounter = 0;
+        }
+
         state.setCurrentTarget(target);
 
-        if (target != null) {
+        if (target != null && HumanizationUtils.hasReactionDelayPassed(reactionCounter++, reactionDelay)) {
             aimAt(minecraft, target, state.getConfig().aimSmoothness);
         }
     }
@@ -58,8 +70,12 @@ public class AimAssistFeature {
                 ? Math.max(smoothness, SNEAK_BEHIND_MIN_SMOOTHNESS)
                 : smoothness;
 
-        float newYaw   = lerpAngle(minecraft.player.getYRot(), targetYaw, effective);
-        float newPitch = Mth.lerp(effective, minecraft.player.getXRot(), targetPitch);
+        float eased = HumanizationUtils.easeInOutQuintic(effective);
+        float newYaw   = lerpAngle(minecraft.player.getYRot(), targetYaw, eased);
+        float newPitch = Mth.lerp(eased, minecraft.player.getXRot(), targetPitch);
+
+        newYaw = HumanizationUtils.applyJitter(newYaw, 0.05f);
+        newPitch = HumanizationUtils.applyJitter(newPitch, 0.05f);
 
         minecraft.player.setYRot(newYaw);
         minecraft.player.setXRot(Mth.clamp(newPitch, -90f, 90f));

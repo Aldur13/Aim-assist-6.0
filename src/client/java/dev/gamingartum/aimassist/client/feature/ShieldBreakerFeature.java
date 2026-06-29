@@ -1,6 +1,7 @@
 package dev.gamingartum.aimassist.client.feature;
 
 import dev.gamingartum.aimassist.client.AimAssistState;
+import dev.gamingartum.aimassist.client.util.HumanizationUtils;
 import net.minecraft.client.Minecraft;
 import net.minecraft.tags.ItemTags;
 import net.minecraft.world.InteractionHand;
@@ -83,7 +84,7 @@ public class ShieldBreakerFeature {
         if (player.distanceTo(target) <= ATTACK_RANGE) {
             minecraft.gameMode.attack(player, target);
             player.swing(InteractionHand.MAIN_HAND);
-            axeCooldown = AXE_COOLDOWN;
+            axeCooldown = HumanizationUtils.getVariableCooldown(AXE_COOLDOWN, 0.3f);
         }
     }
 
