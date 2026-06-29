@@ -106,11 +106,11 @@ public class AimAssistFeature {
 
         // ── sneak-behind upward lift ──────────────────────────────────────────
         if (ShieldBreakerFeature.isSneakBehindActive()) {
-            // Scale the vertical lift with distance: more correction up close
-            // (where ground-drift is worst), tapering off at range.
-            double dist   = minecraft.player == null ? 2.0 : minecraft.player.distanceTo(target);
-            double lift   = Mth.clamp(0.4 - dist * 0.06, 0.05, 0.35);
-            return eye.add(0, lift, 0);
+            double dist = minecraft.player == null ? 2.0 : minecraft.player.distanceTo(target);
+            double closenessBoost = Math.max(0, 1.0 - dist / 5.0);
+            double horizontalFactor = 1.0 - (Math.abs(target.getYRot() - minecraft.player.getYRot()) / 180.0);
+            double lift = (closenessBoost * 0.3 + horizontalFactor * 0.15) - dist * 0.05;
+            return eye.add(0, Mth.clamp(lift, 0.05, 0.35), 0);
         }
 
         return eye;

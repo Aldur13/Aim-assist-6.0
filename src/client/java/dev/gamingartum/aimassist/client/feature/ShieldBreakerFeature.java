@@ -4,16 +4,20 @@ import dev.gamingartum.aimassist.client.AimAssistState;
 import dev.gamingartum.aimassist.client.util.HumanizationUtils;
 import net.minecraft.client.Minecraft;
 import net.minecraft.tags.ItemTags;
+import net.minecraft.util.Mth;
 import net.minecraft.world.InteractionHand;
 import net.minecraft.world.entity.player.Player;
+import net.minecraft.world.phys.ClipContext;
+import net.minecraft.world.phys.HitResult;
 import net.minecraft.world.phys.Vec3;
 
 public class ShieldBreakerFeature {
 
-    private static final int    AXE_COOLDOWN      = 10;  // ticks between axe swings while shield is up
-    private static final int    FOLLOW_UP_WINDOW   = 80;  // ticks of fast follow-ups after shield drops (~4s)
+    private static final int    AXE_COOLDOWN      = 25;  // ticks between axe swings (was 10, too aggressive)
+    private static final int    FOLLOW_UP_WINDOW   = 120; // ticks of fast follow-ups after shield drops (~6s, was 80)
     private static final double ATTACK_RANGE       = 3.5;
-    private static final float  MIN_CHARGE         = 0.90f; // only swing when weapon is ≥90% charged
+    private static final float  MIN_CHARGE         = 0.85f; // only swing when weapon is ≥85% charged
+    private static final double SNEAK_RANGE        = 3.2;  // max distance to attempt strafe
 
     private static int   axeCooldown    = 0;
     private static int   followUpWindow = 0;
@@ -96,10 +100,20 @@ public class ShieldBreakerFeature {
         }
 
         if (player.getInventory().getSelectedSlot() == axeSlot && player.distanceTo(target) <= ATTACK_RANGE) {
-            minecraft.gameMode.attack(player, target);
-            player.swing(InteractionHand.MAIN_HAND);
-            axeCooldown = HumanizationUtils.getVariableCooldown(AXE_COOLDOWN, 0.3f);
+            float charge = player.getAttackStrengthScale(0.5f);
+            if (charge >= MIN_CHARGE && canRaycastHit(player, target)) {
+                minecraft.gameMode.attack(player, target);
+                player.swing(InteractionHand.MAIN_HAND);
+                axeCooldown = HumanizationUtils.getVariableCooldown(AXE_COOLDOWN, 0.3f);
+            }
         }
+    }
+
+    private static boolean canRaycastHit(Player player, Player target) {
+        Vec3 playerEyes = player.getEyePosition();
+        Vec3 targetCenter = target.getEyePosition().add(0, -target.getEyeHeight() / 2, 0);
+        return player.level().clip(new ClipContext(playerEyes, targetCenter,
+                ClipContext.Block.COLLIDER, ClipContext.Fluid.NONE, player)).getType() == HitResult.Type.MISS;
     }
 
     // ─── rapid follow-up after shield is disabled ─────────────────────────────
@@ -142,14 +156,24 @@ public class ShieldBreakerFeature {
      * Positive = strafe left, negative = strafe right (KeyboardInput convention).
      */
     private static float calcStrafeDir(Player player, Player target) {
-        Vec3 targetBack = target.position().subtract(target.getLookAngle().scale(2.0));
-        Vec3 toBack     = targetBack.subtract(player.position()).normalize();
+        double distance = player.distanceTo(target);
+        if (distance > SNEAK_RANGE) return 0f;
+
+        Vec3 velocity = target.getDeltaMovement();
+        double predictTicks = Math.min(distance / 2.0, 3.0);
+        Vec3 predictedPos = target.position().add(velocity.scale(predictTicks));
+
+        double adaptiveOffset = Math.max(1.5, Math.min(6.0, distance * 1.5));
+        Vec3 targetBack = predictedPos.subtract(target.getLookAngle().scale(adaptiveOffset));
+        Vec3 toBack = targetBack.subtract(player.position()).normalize();
 
         double yawRad = Math.toRadians(player.getYRot());
         Vec3 right = new Vec3(Math.cos(yawRad), 0, Math.sin(yawRad));
 
         double dot = toBack.dot(right);
-        return dot > 0 ? -1f : 1f;
+        float rawStrafe = (float) net.minecraft.util.Mth.clamp(dot * 2.0, -1.0, 1.0);
+
+        return net.minecraft.util.Mth.lerp(0.25f, 0f, rawStrafe);
     }
 
     public static float getPendingStrafe() {
