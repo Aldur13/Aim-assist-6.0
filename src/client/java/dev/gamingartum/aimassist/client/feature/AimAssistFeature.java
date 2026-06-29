@@ -99,7 +99,8 @@ public class AimAssistFeature {
             double speed  = velocity.length();
             if (speed > 0.05) {
                 double predictionTicks = Math.min(speed * 3.5, 10.0);
-                return eye.add(velocity.scale(predictionTicks));
+                double variance = 0.85 + Math.random() * 0.3;
+                return eye.add(velocity.scale(predictionTicks * variance));
             }
         }
 

@@ -5,6 +5,8 @@ import java.util.Random;
 public class HumanizationUtils {
 
     private static final Random RANDOM = new Random();
+    private static long lastJitterUpdate = 0;
+    private static float jitterOffset = 0;
 
     public static float easeInOutQuintic(float t) {
         t = Math.max(0, Math.min(1, t));
@@ -40,5 +42,34 @@ public class HumanizationUtils {
 
     public static boolean hasReactionDelayPassed(int tickCounter, int delayTicks) {
         return tickCounter >= delayTicks;
+    }
+
+    public static float getPredictionVariance() {
+        return 0.85f + (float) (Math.random() * 0.3);
+    }
+
+    public static int getEquipmentSwitchDelay() {
+        return 3 + RANDOM.nextInt(5);
+    }
+
+    public static int getAnimationDelay(int baseDelay) {
+        return baseDelay + RANDOM.nextInt(5) - 2;
+    }
+
+    public static float getAdaptiveAccuracy(float baseAccuracy, int successCount) {
+        if (successCount > 10) return Math.min(baseAccuracy + 0.1f, 0.95f);
+        if (successCount < 2) return Math.max(baseAccuracy - 0.15f, 0.60f);
+        return baseAccuracy;
+    }
+
+    public static boolean shouldUseStateDelay(int currentState, int nextState) {
+        if (currentState != nextState) {
+            return RANDOM.nextFloat() < 0.6f;
+        }
+        return false;
+    }
+
+    public static float getSmoothnessVariance(float baseSmoothness) {
+        return baseSmoothness * (0.8f + (float) Math.random() * 0.4f);
     }
 }

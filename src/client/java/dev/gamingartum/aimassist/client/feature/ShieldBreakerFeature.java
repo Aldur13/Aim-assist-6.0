@@ -19,9 +19,20 @@ public class ShieldBreakerFeature {
     private static int   followUpWindow = 0;
     private static int   savedSlot      = -1;  // hotbar slot we held before switching to axe
     private static float pendingStrafe  = 0f;
+    private static int   equipmentDelay = 0;   // delay for equipment animations
+    private static int   equipmentTarget = -1; // target slot to switch to
 
     public static void tick(Minecraft minecraft) {
         if (axeCooldown > 0) axeCooldown--;
+        if (equipmentDelay > 0) equipmentDelay--;
+
+        // Process delayed equipment switch
+        if (equipmentDelay == 0 && equipmentTarget >= 0) {
+            if (minecraft.player != null) {
+                minecraft.player.getInventory().setSelectedSlot(equipmentTarget);
+            }
+            equipmentTarget = -1;
+        }
 
         AimAssistState state = AimAssistState.getInstance();
         if (!state.isEnabled() || !state.getConfig().shieldBreaker) {
@@ -79,9 +90,12 @@ public class ShieldBreakerFeature {
         int axeSlot = findBestAxeSlot(player);
         if (axeSlot < 0) return;
 
-        player.getInventory().setSelectedSlot(axeSlot);
+        if (equipmentDelay <= 0 && equipmentTarget < 0) {
+            equipmentTarget = axeSlot;
+            equipmentDelay = 3 + (int)(Math.random() * 5);
+        }
 
-        if (player.distanceTo(target) <= ATTACK_RANGE) {
+        if (player.getInventory().getSelectedSlot() == axeSlot && player.distanceTo(target) <= ATTACK_RANGE) {
             minecraft.gameMode.attack(player, target);
             player.swing(InteractionHand.MAIN_HAND);
             axeCooldown = HumanizationUtils.getVariableCooldown(AXE_COOLDOWN, 0.3f);
