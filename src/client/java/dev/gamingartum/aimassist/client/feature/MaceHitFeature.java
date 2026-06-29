@@ -1,6 +1,7 @@
 package dev.gamingartum.aimassist.client.feature;
 
 import dev.gamingartum.aimassist.client.AimAssistState;
+import dev.gamingartum.aimassist.client.util.HumanizationUtils;
 import net.minecraft.client.Minecraft;
 import net.minecraft.world.InteractionHand;
 import net.minecraft.world.entity.player.Player;
@@ -36,9 +37,14 @@ public class MaceHitFeature {
         if (!holdingMace || !isFalling || !enoughFallDist) return;
 
         if (isInStrikeZone(player, target)) {
-            minecraft.gameMode.attack(player, target);
-            player.swing(InteractionHand.MAIN_HAND);
-            cooldown = HIT_COOLDOWN;
+            double distance = player.distanceTo(target);
+            float missChance = (float) Math.min(0.15, distance * 0.05);
+
+            if (!HumanizationUtils.shouldMiss(missChance)) {
+                minecraft.gameMode.attack(player, target);
+                player.swing(InteractionHand.MAIN_HAND);
+            }
+            cooldown = HumanizationUtils.getVariableCooldown(HIT_COOLDOWN, 0.3f);
         }
     }
 
