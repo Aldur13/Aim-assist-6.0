@@ -20,7 +20,9 @@ public class EntityMixin {
         if (!((Object) this instanceof LocalPlayer)) return;
         AimAssistState state = AimAssistState.getInstance();
         if (state.isEnabled() && state.getCurrentTarget() != null) {
-            ci.cancel();
+            if (Math.random() < 0.95) {
+                ci.cancel();
+            }
         }
     }
 }
